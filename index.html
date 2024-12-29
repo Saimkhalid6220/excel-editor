@@ -33,13 +33,27 @@
       <input type="password" id="register-password" placeholder="New User Password" class="border p-2 mb-4 w-full rounded">
       <button onclick="registerUser()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Register User</button>
     </div>
-    <div id="reset-password-section" class="bg-white p-8 rounded-lg shadow-lg hidden mt-10">
+    <div id="reset-password-section" class="hidden bg-white p-8 rounded-lg shadow-lg mt-10">
       <h3 class="text-2xl mb-4">Reset Password</h3>
       <input type="text" id="reset-username" placeholder="Username" class="border p-2 mb-4 w-full rounded">
       <input type="password" id="reset-password" placeholder="New Password" class="border p-2 mb-4 w-full rounded">
       <button onclick="resetPassword()" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Reset Password</button>
     </div>
-    <div id="main-section" class="bg-white p-8 rounded-lg shadow-lg hidden mt-10">
+    <div id="main-section" class="hidden bg-white p-8 rounded-lg  mt-10 bg-transparent">
+      <div class=" my-4 flex h-28 gap-x-3">
+        <div class="flex-1 bg-blue-600 text-white font-semibold text-xl rounded-xl shadow-xl flex flex-col justify-center items-center">
+          <span class="capitalize ">total cases</span>
+          <span class="text-sm">0</span>
+        </div>
+        <div class="flex-1 bg-green-600 text-white font-semibold text-xl rounded-xl shadow-xl flex flex-col justify-center items-center">
+          <span class="capitalize ">active cases</span>
+          <span class="text-sm">0</span>
+        </div>
+        <div class="flex-1 bg-red-600 text-white font-semibold text-xl rounded-xl shadow-xl flex flex-col justify-center items-center">
+          <span class="capitalize">closed cases</span>
+          <span class="text-sm">0</span>
+        </div>
+      </div>
       <input type="text" id="search-input" class="border p-2 mb-4 w-full rounded" placeholder="Search...">
       <button onclick="fetchData()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fetch Data</button>
       <button onclick="exportData()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 ml-2">Export Data</button>
@@ -90,7 +104,7 @@
           if (isAdmin) {
             document.getElementById('admin-section').classList.remove('hidden');
           }
-          document.getElementById('reset-password-section').classList.remove('hidden');
+          // document.getElementById('reset-password-section').classList.remove('hidden');
         } else {
           document.getElementById('login-error').innerText = 'Invalid username or password';
         }
