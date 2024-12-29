@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Excel Editor</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .hidden { display: none; }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <div class="bg-gray-800 p-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <h2 class="text-white text-2xl">Excel Editor</h2>
+      <div>
+        <a href="#" onclick="showSection('login')" class="text-white hover:underline mx-2">Login</a>
+        <a href="#" onclick="showSection('reset-password-section')" class="text-white hover:underline mx-2">Reset Password</a>
+      </div>
+    </div>
+  </div>
+  <div class="container mx-auto mt-10">
+    <div id="login" class="bg-white p-8 rounded-lg shadow-lg">
+      <h3 class="text-2xl mb-4">Login</h3>
+      <input type="text" id="login-username" placeholder="Username" class="border p-2 mb-4 w-full rounded">
+      <input type="password" id="login-password" placeholder="Password" class="border p-2 mb-4 w-full rounded">
+      <button onclick="login()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Login</button>
+      <p id="login-error" class="text-red-500 mt-4"></p>
+    </div>
+    <div id="admin-section" class="bg-white p-8 rounded-lg shadow-lg hidden mt-10">
+      <h3 class="text-2xl mb-4">Admin Section</h3>
+      <input type="text" id="register-username" placeholder="New User Username" class="border p-2 mb-4 w-full rounded">
+      <input type="password" id="register-password" placeholder="New User Password" class="border p-2 mb-4 w-full rounded">
+      <button onclick="registerUser()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Register User</button>
+    </div>
+    <div id="reset-password-section" class="bg-white p-8 rounded-lg shadow-lg hidden mt-10">
+      <h3 class="text-2xl mb-4">Reset Password</h3>
+      <input type="text" id="reset-username" placeholder="Username" class="border p-2 mb-4 w-full rounded">
+      <input type="password" id="reset-password" placeholder="New Password" class="border p-2 mb-4 w-full rounded">
+      <button onclick="resetPassword()" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Reset Password</button>
+    </div>
+    <div id="main-section" class="bg-white p-8 rounded-lg shadow-lg hidden mt-10">
+      <input type="text" id="search-input" class="border p-2 mb-4 w-full rounded" placeholder="Search...">
+      <button onclick="fetchData()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fetch Data</button>
+      <button onclick="exportData()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 ml-2">Export Data</button>
+      <input type="file" id="file-input" class="border p-2 mb-4 w-full rounded" onchange="uploadFile()">
+      <button onclick="saveData()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Save Data</button>
+      <table id="data-table" class="table-auto w-full mt-4">
+        <thead>
+          <tr>
+            <!-- Table headers will be dynamically generated -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Table rows will be dynamically generated -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let token;
+    let isAdmin = false;
+
+    function showSection(sectionId) {
+      document.getElementById('login').classList.add('hidden');
+      document.getElementById('reset-password-section').classList.add('hidden');
+      document.getElementById('admin-section').classList.add('hidden');
+      document.getElementById('main-section').classList.add('hidden');
+
+      document.getElementById(sectionId).classList.remove('hidden');
+    }
+
+    function login() {
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+
+      fetch('http://localhost:3000/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.token) {
+          token = data.token;
+          isAdmin = data.isAdmin;
+          document.getElementById('login').classList.add('hidden');
+          document.getElementById('main-section').classList.remove('hidden');
+          if (isAdmin) {
+            document.getElementById('admin-section').classList.remove('hidden');
+          }
+          document.getElementById('reset-password-section').classList.remove('hidden');
+        } else {
+          document.getElementById('login-error').innerText = 'Invalid username or password';
+        }
+      });
+    }
+
+    function registerUser() {
+      const username = document.getElementById('register-username').value;
+      const password = document.getElementById('register-password').value;
+
+      fetch('http://localhost:3000/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': token },
+        body: JSON.stringify({ username, password })
+      })
+      .then(response => {
+        if (response.status === 201) {
+          alert('User registered');
+        } else {
+          alert('Failed to register user');
+        }
+      });
+    }
+
+    function resetPassword() {
+      const username = document.getElementById('reset-username').value;
+      const password = document.getElementById('reset-password').value;
+
+      fetch('http://localhost:3000/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(response => {
+        if (response.status === 200) {
+          alert('Password reset successful');
+        } else {
+          alert('Failed to reset password');
+        }
+      });
+    }
+
+    function fetchData() {
+      fetch('http://localhost:3000/data', {
+        headers: { 'Authorization': token }
+      })
+      .then(response => response.json())
+      .then(data => {
+        renderTable(data);
+      });
+    }
+
+    function exportData() {
+      fetch('http://localhost:3000/export', {
+        headers: { 'Authorization': token }
+      })
+      .then(response => response.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'data.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      });
+    }
+
+    function uploadFile() {
+      const fileInput = document.getElementById('file-input');
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      fetch('http://localhost:3000/upload', {
+        method: 'POST',
+        headers: { 'Authorization': token },
+        body: formData
+      })
+      .then(response => response.text())
+      .then(data => {
+        alert(data);
+        fetchData();
+      });
+    }
+
+    function renderTable(data) {
+      const table = document.getElementById('data-table');
+      const thead = table.querySelector('thead');
+      const tbody = table.querySelector('tbody');
+      thead.innerHTML = '';
+      tbody.innerHTML = '';
+
+      if (data.length === 0) return;
+
+      // Create headers from the second row
+      const headerRow = document.createElement('tr');
+      data[1].forEach(key => {
+        const th = document.createElement('th');
+        th.innerText = key;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+
+      // Create rows from the data excluding the first row
+      data.forEach((row, rowIndex) => {
+        if (rowIndex === 0) return; // Skip the first row
+        const tr = document.createElement('tr');
+        row.forEach((cell, cellIndex) => {
+          const td = document.createElement('td');
+          const input = document.createElement('input');
+          input.value = cell;
+          input.classList.add('border', 'p-2', 'w-full', 'rounded');
+          input.onchange = (e) => {
+            data[rowIndex][cellIndex] = e.target.value;
+          };
+          td.appendChild(input);
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    function saveData() {
+      const table = document.getElementById('data-table');
+      const rows = Array.from(table.querySelectorAll('tbody tr'));
+      const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.innerText);
+      const data = rows.map(row => {
+        const cells = Array.from(row.cells);
+        return cells.reduce((obj, cell, index) => {
+          obj[headers[index]] = cell.children[0].value;
+          return obj;
+        }, {});
+      });
+
+      fetch('http://localhost:3000/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': token },
+        body: JSON.stringify({ data })
+      })
+      .then(response => response.text())
+      .then(data => {
+        alert(data);
+      });
+    }
+
+    document.getElementById('search-input').addEventListener('input', function() {
+      const searchValue = this.value.toLowerCase();
+      const rows = document.querySelectorAll('#data-table tbody tr');
+      rows.forEach(row => {
+        const cells = Array.from(row.cells);
+        const matches = cells.some(cell => cell.children[0].value.toLowerCase().includes(searchValue));
+        if (matches) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+
+  </script>
+</body>
+</html>
