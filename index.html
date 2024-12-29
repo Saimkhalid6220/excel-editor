@@ -10,12 +10,15 @@
   </style>
 </head>
 <body class="bg-gray-100">
-  <div class="bg-gray-800 p-4">
+  <div class="bg-white p-4">
     <div class="container mx-auto flex justify-between items-center">
-      <h2 class="text-white text-2xl">Excel Editor</h2>
+      <div class="flex items-center">
+        <img src="logo.png" alt="Logo" class="h-8 w-8 mr-2">
+        <h2 class="text-black text-2xl">Excel Editor</h2>
+      </div>
       <div>
-        <a href="#" onclick="showSection('login')" class="text-white hover:underline mx-2">Login</a>
-        <a href="#" onclick="showSection('reset-password-section')" class="text-white hover:underline mx-2">Reset Password</a>
+        <a href="#" onclick="showSection('login')" class="text-black hover:underline mx-2">Login</a>
+        <a href="#" onclick="showSection('reset-password-section')" class="text-black hover:underline mx-2">Reset Password</a>
       </div>
     </div>
   </div>
@@ -24,7 +27,9 @@
       <h3 class="text-2xl mb-4">Login</h3>
       <input type="text" id="login-username" placeholder="Username" class="border p-2 mb-4 w-full rounded">
       <input type="password" id="login-password" placeholder="Password" class="border p-2 mb-4 w-full rounded">
-      <button onclick="login()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Login</button>
+      <div class="flex justify-center">
+      <button onclick="login()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Login</button>
+      </div>
       <p id="login-error" class="text-red-500 mt-4"></p>
     </div>
     <div id="admin-section" class="bg-white p-8 rounded-lg shadow-lg hidden mt-10">
@@ -33,25 +38,40 @@
       <input type="password" id="register-password" placeholder="New User Password" class="border p-2 mb-4 w-full rounded">
       <button onclick="registerUser()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Register User</button>
     </div>
-    <div id="reset-password-section" class="bg-white p-8 rounded-lg shadow-lg hidden mt-10">
+    <div id="reset-password-section" class="bg-white ml-3 mr-3 justify-center p-8 rounded-lg shadow-lg hidden mt-10 border border-black">
       <h3 class="text-2xl mb-4">Reset Password</h3>
       <input type="text" id="reset-username" placeholder="Username" class="border p-2 mb-4 w-full rounded">
       <input type="password" id="reset-password" placeholder="New Password" class="border p-2 mb-4 w-full rounded">
-      <button onclick="resetPassword()" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Reset Password</button>
+      <div class="flex justify-center">
+      <button onclick="resetPassword()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Reset Password</button>
+      </div>
     </div>
-    <div id="main-section" class="bg-white p-8 rounded-lg shadow-lg hidden mt-10">
-      <input type="text" id="search-input" class="border p-2 mb-4 w-full rounded" placeholder="Search...">
-      <button onclick="fetchData()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fetch Data</button>
-      <button onclick="exportData()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 ml-2">Export Data</button>
-      <input type="file" id="file-input" class="border p-2 mb-4 w-full rounded" onchange="uploadFile()">
-      <button onclick="saveData()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Save Data</button>
-      <table id="data-table" class="table-auto w-full mt-4">
-        <thead>
+    </div>
+    <div id="main-section" class="bg-white text-black p-8 ml-3 mr-3 rounded-lg shadow-lg hidden mt-10 border border-black">
+      <input type="text" id="search-input" class="border p-2 mb-4 w-full rounded border-black" placeholder="Search...">
+      <div class="flex justify-center">
+        <button onclick="fetchData()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mx-2 ">Fetch Data</button>
+        <button onclick="exportData()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mx-2 ">Export Data</button>
+        <label class="bg-green-500 text-white px-4 py-2 rounded cursor-pointer inline-block mx-2 hover:bg-green-600 ">
+          Upload Excel
+          <input type="file" id="file-input" class="hidden" onchange="uploadFile()">
+        </label>
+      </div>
+      <div id="dropZone" class="mt-4 border-dashed border-4 border-gray-300 p-4 text-center">
+        Drag and drop your Excel file here
+      </div>
+      <div class="flex justify-center mt-4">
+        <button onclick="saveData()" class="bg-green-500  text-white px-4 py-2 rounded hover:bg-green-600">Save Data</button>
+      </div>
+    </div>
+      
+      <table id="data-table" class="table-auto w-full mt-8 border-collapse border border-gray-300 rounded-lg shadow-lg">
+        <thead class="bg-gray-300 text-left">
           <tr>
-            <!-- Table headers will be dynamically generated -->
+        <!-- Table headers will be dynamically generated -->
           </tr>
         </thead>
-        <tbody>
+        <tbody class="bg-white"></tbody>
           <!-- Table rows will be dynamically generated -->
         </tbody>
       </table>
@@ -252,6 +272,40 @@
       });
     });
 
+    // Drag-and-Drop functionality
+    const dropZone = document.getElementById('dropZone');
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('bg-gray-200');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('bg-gray-200');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('bg-gray-200');
+      const files = e.dataTransfer.files;
+      handleFiles(files);
+    });
+
+    function handleFiles(files) {
+      const file = files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      fetch('http://localhost:3000/upload', {
+        method: 'POST',
+        headers: { 'Authorization': token },
+        body: formData
+      })
+      .then(response => response.text())
+      .then(data => {
+        alert(data);
+        fetchData();
+      });
+    }
   </script>
 </body>
 </html>
