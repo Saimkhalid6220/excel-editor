@@ -33,7 +33,7 @@
       <input type="password" id="register-password" placeholder="New User Password" class="border p-2 mb-4 w-full rounded">
       <button onclick="registerUser()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Register User</button>
     </div>
-    <div id="reset-password-section" class="hidden bg-white p-8 rounded-lg shadow-lg mt-10">
+    <div id="reset-password-section" class="bg-white ml-3 mr-3 justify-center p-8 rounded-lg shadow-lg hidden mt-10 border border-black"></div>
       <h3 class="text-2xl mb-4">Reset Password</h3>
       <input type="text" id="reset-username" placeholder="Username" class="border p-2 mb-4 w-full rounded">
       <input type="password" id="reset-password" placeholder="New Password" class="border p-2 mb-4 w-full rounded">
@@ -59,8 +59,8 @@
       <button onclick="exportData()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 ml-2">Export Data</button>
       <input type="file" id="file-input" class="border p-2 mb-4 w-full rounded" onchange="uploadFile()">
       <button onclick="saveData()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Save Data</button>
-      <table id="data-table" class="table-auto w-full mt-4">
-        <thead>
+      <table id="data-table" class="table-auto w-full mt-8 border-collapse border border-gray-300 rounded-lg shadow-lg">
+        <thead class="bg-gray-300 text-left">
           <tr>
             <!-- Table headers will be dynamically generated -->
           </tr>
